@@ -50,7 +50,7 @@ export class Map extends React.Component {
                 'geometry': {
                   'type': 'LineString',
                   'coordinates': [
-                    [4, 4]
+                    
                   ]
               }
             }
@@ -59,15 +59,33 @@ export class Map extends React.Component {
 
 
 
-        var coordonates = geojson.features[0].geometry.coordinates[0][0];
-        this.setState({
-          lng: coordonates
-        });
+
         let active = this.state.active;
 
         console.log('oui'+active)
         map.on('load', function () {
             if(active) {
+                
+                // geojson.features[0].geometry.coordinates.length = 0;
+                // var options = {timeout:60000};
+                // navigator.geolocation.getCurrentPosition(
+                // data => {
+                //      var coordPush1 = [data.coords.longitude, data.coords.latitude];
+                //      console.log("GCP : "+coordPush1[0]);
+                //      geojson.features[0].geometry.coordinates.push(coordPush1); 
+                // },
+                // err => {
+                //     if(err.code == 1) {
+                //         alert("Error: Access is denied!");
+                //      } 
+                //      else if( err.code == 2) {
+                //         alert("Error: Position is unavailable!");
+                //      }
+                // },
+                // options
+                // );
+                geojson.features[0].geometry.coordinates.length = 0;
+                
                 map.addSource('route', {
                     'type': 'geojson',
                     'data': geojson
@@ -93,12 +111,23 @@ export class Map extends React.Component {
                 } );
                 
                 var timer = window.setInterval(function () {
-                    geojson.features[0].geometry.coordinates.push(coordtest);
+                    if(coordtest.length !==0) {
+                        geojson.features[0].geometry.coordinates.push(coordtest);
+                    }
+                    
                     map.getSource('route').setData(geojson);
+                    console.log(geojson)
                 }, 1000);
+
+                this.setState({timerID: timer})
             }
-            
-        });
+            else {
+                window.clearInterval(this.state.timerID)
+            }
+        }.bind(this));
+
+
+        
     }
 
 

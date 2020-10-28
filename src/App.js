@@ -5,7 +5,7 @@ import {Map} from './Components/Map/Map.js'
 function App() {
   return (
     <div className="App">
-      <h1>test</h1>
+      <h1>Hashiru</h1>
       <Map/>
     </div>
   );
