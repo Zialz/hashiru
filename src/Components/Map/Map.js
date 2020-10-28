@@ -85,7 +85,7 @@ export class Map extends React.Component {
                 // options
                 // );
                 geojson.features[0].geometry.coordinates.length = 0;
-                
+
                 map.addSource('route', {
                     'type': 'geojson',
                     'data': geojson
@@ -116,7 +116,6 @@ export class Map extends React.Component {
                     }
                     
                     map.getSource('route').setData(geojson);
-                    console.log(geojson)
                 }, 1000);
 
                 this.setState({timerID: timer})
