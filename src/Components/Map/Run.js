@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
-import ReactDOM from 'react-dom';
 import mapboxgl, { clearPrewarmedResources } from 'mapbox-gl';
-import {Button} from '../Button/Button.js'
-import { act } from 'react-dom/test-utils';
+import { getdataDistance, getDistance } from 'geolib';
+
+
 
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoicm90b3RvZ3JpbCIsImEiOiJja2Y1anFlYTAwbmxrMnlwOTZmNmd3OGxzIn0.wpkEfgXt-XFfU_yWUgx7BA';
@@ -13,13 +13,17 @@ export function Map(props)  {
     const mapContainer = useRef(null);
 
 
-    const [active, setActive] = useState(false);
+    const [isRunning, setIsRunning] = useState(false);
     const [lng, setLng] = useState(5);
     const [lat, setLat] = useState(34);
     const [zoom, setZoom] = useState(2);
     const [timer, setTimer] = useState();
 
+    const [dataTimeSeconds, setdataTimeSeconds] = useState(0);
+    const [displayTime, setDisplayTime] = useState();
 
+    const [dataDistance, setDataDistance] = useState(0);
+    const [displayDistance, setDisplayDistance] = useState(0);
 
     var geojson = {
         'type': 'FeatureCollection',
@@ -62,7 +66,6 @@ export function Map(props)  {
             map.on('load', function () {
                 setMap(map);
                 map.resize();
-                console.log("ici"+active)
                 map.addSource('route', {
                     'type': 'geojson',
                     'data': geojson
@@ -84,22 +87,42 @@ export function Map(props)  {
             });
         }
 
-        if(active) {
+        if(isRunning) {
             geojson.features[0].geometry.coordinates.length = 0;
 
             
 
         
-            var coordtest = [];
-            navigator.geolocation.watchPosition(data => { coordtest = [data.coords.longitude, data.coords.latitude]
+            var coorddisplayTime = [];
+            navigator.geolocation.watchPosition(data => { coorddisplayTime = [data.coords.longitude, data.coords.latitude]
             } );
             
             var timerID = window.setInterval(function () {
-                if(coordtest.length !==0) {
-                    geojson.features[0].geometry.coordinates.push(coordtest);
+                var geojsonLength = geojson.features[0].geometry.coordinates.length;
+
+
+                // Actualisation des coordonnées
+                if(coorddisplayTime.length !==0 && coorddisplayTime != geojson.features[0].geometry.coordinates[geojsonLength-1]) {
+                    geojson.features[0].geometry.coordinates.push(coorddisplayTime);
+                    if(geojsonLength >= 1) {
+                        var from =  {
+                            latitude: geojson.features[0].geometry.coordinates[geojsonLength -1][1],
+                            longitude: geojson.features[0].geometry.coordinates[geojsonLength -1][0],
+                        };
+                          var to =  {
+                            latitude: geojson.features[0].geometry.coordinates[geojsonLength -0][1],
+                            longitude: geojson.features[0].geometry.coordinates[geojsonLength -0][0],
+                        };
+                        var lastDist = getDistance(from,to);
+                        setDataDistance(prevCount => prevCount + lastDist);
+                    }
                 }
-                
+
                 map.getSource('route').setData(geojson);
+
+                // Actualisation du temps
+                setdataTimeSeconds(prevCount => prevCount + 1000);
+
             }, 1000);
 
             setTimer(timerID);
@@ -114,17 +137,27 @@ export function Map(props)  {
         if (!map) initializeMap({ setMap, mapContainer });
 
 
-    }, [active] );
+    }, [isRunning] );
         
-        
+    useEffect(() => {
+        // Temps
+        setDisplayTime(new Date(dataTimeSeconds).toISOString().substr(11, 8));
+
+        // Distance
+        setDisplayDistance(dataDistance/1000);
+
+    },[dataTimeSeconds, dataDistance])
         
     return (
         <div>
             <div className='sidebarStyle'>
-                <div>Longitude: {lng} | Latitude: {lat} | Zoom: {zoom}</div>
+                <div>Longitude: {lng} | Latitude: {lat} | Zoom: {zoom} | Time : {displayTime} | Kilomètres : {displayDistance} km </div>
             </div>
             <div ref={el => mapContainer.current = el} className="mapContainer" />
-            <button onClick={() => {setActive(!active)}}>Activer</button>
+            <div>
+                <button onClick={() => {setIsRunning(!isRunning)}}>Démarrer</button>
+            </div>
+            
 
         </div>
     )
