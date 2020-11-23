@@ -1,6 +1,6 @@
 import {Link } from 'react-router-dom';
 import {BottomNavigation, BottomNavigationAction} from '@material-ui/core';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import TrendingUpIcon from '@material-ui/icons/TrendingUp';
 import HomeIcon from '@material-ui/icons/Home';
 import DirectionsRunIcon from '@material-ui/icons/DirectionsRun';
@@ -15,19 +15,6 @@ export default function Navi() {
 
     const [value,setValue] = useState(); 
     
-    const[windowWidth, setWindowWidth] = useState(0);
-
-    var updateDimensions = () => {
-        var ww = typeof window !== "undefined" ? window.innerWidth : 0;
-        console.log(ww);
-        setWindowWidth(ww);
-    };
-
-
-    useEffect(() => {
-        updateDimensions();
-        window.addEventListener('resize',updateDimensions())
-    });
 
     return (
         <div>
@@ -57,7 +44,7 @@ export default function Navi() {
                     </Nav>
                     <Navbar.Collapse className="justify-content-end">
                         <Navbar.Text>
-                        Dernière màj le 05/11/2020
+                        Dernière màj le 23/11/2020
                         </Navbar.Text>
                     </Navbar.Collapse>
                 </Navbar>
