@@ -1,9 +1,10 @@
-import logo from './logo.svg';
 import './App.css';
-import {Map} from './Components/Map/Run.js'
-import Nav from './Components/Nav/Nav.js'
-import Graph from './Components/Graph/Graph'
+import {Map} from './Components/Run.js'
+import Nav from './Components/Nav.js'
+import Graph from './Components/Graph.js'
 import {BrowserRouter as Router, Switch, Route} from 'react-router-dom'
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 function App() {
   return (

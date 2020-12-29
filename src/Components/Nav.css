@@ -1,0 +1,27 @@
+.styleBar {
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    font-family: 'Montserrat', sans-serif;
+    font-family: 'Roboto', sans-serif;
+    font-family: 'Staatliches', cursive;
+}
+
+.navbar {
+    font-family: 'Staatliches', cursive;
+    background-color: white;
+}
+
+.navText {
+    color:#18182F  !important;
+    font-size: x-large;
+}
+
+.navText:hover {
+    color: #dc3545 !important;
+}
+
+.disabled {
+    color: grey  !important;
+
+}

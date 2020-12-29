@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
-import mapboxgl, { clearPrewarmedResources } from 'mapbox-gl';
-import { getdataDistance, getDistance } from 'geolib';
+import mapboxgl from 'mapbox-gl';
+import { getDistance } from 'geolib';
 
 
 
@@ -18,7 +18,7 @@ export function Map(props)  {
     const [lng, setLng] = useState(5);
     const [lat, setLat] = useState(34);
     const [zoom, setZoom] = useState(2);
-    const [timer, setTimer] = useState();
+    const [timer, setTimer] = useState(); 
 
     const [dataTimeSeconds, setdataTimeSeconds] = useState(0);
     const [displayTime, setDisplayTime] = useState();
