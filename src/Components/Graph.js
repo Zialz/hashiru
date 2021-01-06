@@ -13,12 +13,12 @@ mapboxgl.accessToken = 'pk.eyJ1Ijoicm90b3RvZ3JpbCIsImEiOiJja2Y1anFlYTAwbmxrMnlwO
 
 export default function Graph(props) {
 
-  // Global Variables
+  // Source provenant du holder
   const [source,setSource] = useState(null);
   const [isLoaded,setIsLoaded] = useState(false);
 
   useEffect(() => {
-    var comeSource = JSON.parse(props.history.location.state.test);
+    var comeSource = JSON.parse(props.history.location.state.data);
     setSource(comeSource);
     setIsLoaded(true);
   },[])

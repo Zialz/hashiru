@@ -40,7 +40,7 @@ export default function Navi() {
                 >
                     <BottomNavigationAction label="Run" icon={<DirectionsRunIcon />} component={Link} to='/run' />
                     <BottomNavigationAction label="Home" icon={<HomeIcon />} component={Link} to='/' />
-                    <BottomNavigationAction label="Graph" icon={<TrendingUpIcon />} component={Link} to='/holder' />
+                    <BottomNavigationAction label="Analyse" icon={<TrendingUpIcon />} component={Link} to='/upload' />
 
                 </BottomNavigation>
             </MediaQuery>
@@ -54,8 +54,8 @@ export default function Navi() {
 
                         </Nav.Link>
                         <Nav.Link as={Link} to="/" className="navText">Accueil</Nav.Link>
-                        <Nav.Link as={Link} to="/run" className="navText disabled" >Course</Nav.Link>
-                        <Nav.Link as={Link} to="/holder" className="navText">Graphique</Nav.Link>
+                        <Nav.Link as={Link} to="/run" className="navText " >Course</Nav.Link>
+                        <Nav.Link as={Link} to="/upload" className="navText">Analyse</Nav.Link>
                     </Nav>
                     <Navbar.Brand className="justify-content-end">
                         <Navbar.Brand>

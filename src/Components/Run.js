@@ -8,17 +8,14 @@ import { getDistance } from 'geolib';
 mapboxgl.accessToken = 'pk.eyJ1Ijoicm90b3RvZ3JpbCIsImEiOiJja2Y1anFlYTAwbmxrMnlwOTZmNmd3OGxzIn0.wpkEfgXt-XFfU_yWUgx7BA';
 
 
-export function Map(props)  {
+export function Map() {
     const [map, setMap] = useState(null);
     const mapContainer = useRef(null);
 
 
     const [running, setRunning] = useState(false);
     const [pause, setPause] = useState(false);
-    const [lng, setLng] = useState(5);
-    const [lat, setLat] = useState(34);
-    const [zoom, setZoom] = useState(2);
-    const [timer, setTimer] = useState(); 
+    const [timer, setTimer] = useState();
 
     const [dataTimeSeconds, setdataTimeSeconds] = useState(0);
     const [displayTime, setDisplayTime] = useState();
@@ -29,16 +26,16 @@ export function Map(props)  {
     var geojsondata = {
         'type': 'FeatureCollection',
         'features': [
-          {
-            'type': 'Feature',
-            'properties': {},
-            'geometry': {
-              'type': 'LineString',
-              'coordinates': [
-                
-              ]
-          }
-        }
+            {
+                'type': 'Feature',
+                'properties': {},
+                'geometry': {
+                    'type': 'LineString',
+                    'coordinates': [
+
+                    ]
+                }
+            }
         ]
     };
 
@@ -49,24 +46,16 @@ export function Map(props)  {
     // Initialisation de la map
     useEffect(() => {
 
-        
+
         const initializeMap = ({ setMap, mapContainer }) => {
             const map = new mapboxgl.Map({
-              container: mapContainer.current,
-              style: "mapbox://styles/mapbox/streets-v11", // stylesheet location
-              center: [lng, lat],
-              zoom: zoom
+                container: mapContainer.current,
+                style: "mapbox://styles/mapbox/streets-v11", // stylesheet location
+                center: [1, 46],
+                zoom: 5
             })
-        
 
 
-            
-            map.on('move', () => {
-                setLng(map.getCenter().lng.toFixed(4));
-                setLat(map.getCenter().lat.toFixed(4));
-                setZoom(map.getZoom().toFixed(2));
-            });
-            
 
             map.on('load', function () {
                 setMap(map);
@@ -75,57 +64,59 @@ export function Map(props)  {
                     'type': 'geojson',
                     'data': geojson
                 });
-        
+
                 map.addLayer({
                     'id': 'route',
                     'type': 'line',
                     'source': 'route',
                     'layout': {
-                    'line-join': 'round',
-                    'line-cap': 'round',
+                        'line-join': 'round',
+                        'line-cap': 'round',
                     },
                     'paint': {
-                    'line-color': ' #ff29cb ',
-                    'line-width': 4
+                        'line-color': ' #dc3545 ',
+                        'line-width': 4
                     }
                 });
 
             });
         }
 
-        
+
         if (!map) initializeMap({ setMap, mapContainer });
 
 
-    }, [running] );
-    
+    }, [running]);
+
 
     // Algorithme de course
     useEffect(() => {
-        if(running && !pause) {
-            
-            var coorddisplayTime = [];
-            navigator.geolocation.watchPosition(data => { coorddisplayTime = [data.coords.longitude, data.coords.latitude]
-            } );
-            
-            var timerID = window.setInterval(function () {
-            var geojsonLength = geojson.features[0].geometry.coordinates.length;
+        if (running && !pause) {
 
+            var coorddisplayTime = [];
+            navigator.geolocation.watchPosition(data => {
+                coorddisplayTime = [data.coords.longitude, data.coords.latitude]
+            });
+
+            var timerID = window.setInterval(function () {
+
+
+                var geojsonLength = geojson.features[0].geometry.coordinates.length;
 
                 // Actualisation de la distance et des coordonnées
-                if(coorddisplayTime.length !==0 && coorddisplayTime != geojson.features[0].geometry.coordinates[geojsonLength-1]) {
+                if (coorddisplayTime.length !== 0 && coorddisplayTime != geojson.features[0].geometry.coordinates[geojsonLength - 1]) {
                     geojson.features[0].geometry.coordinates.push(coorddisplayTime);
 
-                    if(geojsonLength >= 1) {
-                        var from =  {
-                            latitude: geojson.features[0].geometry.coordinates[geojsonLength -1][1],
-                            longitude: geojson.features[0].geometry.coordinates[geojsonLength -1][0],
+                    if (geojsonLength >= 1) {
+                        var from = {
+                            latitude: geojson.features[0].geometry.coordinates[geojsonLength - 1][1],
+                            longitude: geojson.features[0].geometry.coordinates[geojsonLength - 1][0],
                         };
-                          var to =  {
-                            latitude: geojson.features[0].geometry.coordinates[geojsonLength -0][1],
-                            longitude: geojson.features[0].geometry.coordinates[geojsonLength -0][0],
+                        var to = {
+                            latitude: geojson.features[0].geometry.coordinates[geojsonLength - 0][1],
+                            longitude: geojson.features[0].geometry.coordinates[geojsonLength - 0][0],
                         };
-                        var lastDist = getDistance(from,to);
+                        var lastDist = getDistance(from, to);
                         setDataDistance(prevCount => prevCount + lastDist);
                     }
                 }
@@ -134,7 +125,6 @@ export function Map(props)  {
                 setdataTimeSeconds(prevCount => prevCount + 1000);
 
                 map.getSource('route').setData(geojson);
-                //map.setLayoutProperty('route','visibility','none');
 
 
             }, 1000);
@@ -143,48 +133,57 @@ export function Map(props)  {
             setTimer(timerID);
 
         }
-        else if(running && pause) {
+        else if (running && pause) {
             window.clearInterval(timer);
         }
-        else if(!running) {
-             // Sauvegarde de la course
-             
+        else if (!running) {
+            // Sauvegarde de la course
 
-             // Réinitialisation 
-             window.clearInterval(timer)
-             geojson.features[0].geometry.coordinates.length = 0;
-             setPause(false);
-             setdataTimeSeconds(0);
-             setDataDistance(0);
+
+            // Réinitialisation 
+            window.clearInterval(timer)
+            geojson.features[0].geometry.coordinates.length = 0;
+            setPause(false);
+            setdataTimeSeconds(0);
+            setDataDistance(0);
         }
-    },[running,pause]);
-    
+    }, [running, pause]);
+
     useEffect(() => {
         // Temps
         setDisplayTime(new Date(dataTimeSeconds).toISOString().substr(11, 8));
 
         // Distance
-        setDisplayDistance(dataDistance/1000);
-    },[dataTimeSeconds, dataDistance])
-        
+        setDisplayDistance(dataDistance / 1000);
+    }, [dataTimeSeconds, dataDistance])
+
     return (
         <div>
-            <div className='sidebarStyle'>
-                <div>Longitude: {lng} | Latitude: {lat} | Zoom: {zoom} | Time : {displayTime} | Kilomètres : {displayDistance} km </div>
-            </div>
             <div ref={el => mapContainer.current = el} className="mapContainer" />
             {!running &&
-                <button onClick={() => {setRunning(!running)}}>Démarrer</button>
+                <button className="btn btn-outline-danger m-1" onClick={() => { setRunning(!running) }}>Démarrer</button>
             }
-            {running &&
+            {running && !pause &&
                 <div>
-                    <button onClick={() => {setPause(!pause)}}>Pause</button>
-                    <button onClick={() => {setRunning(!running)}}>Arrêter</button>
+                    <button className="btn btn-outline-danger m-1" onClick={() => { setPause(!pause) }}>Mettre en pause</button>
+                    <button className="btn btn-outline-danger m-1" onClick={() => { setRunning(!running) }}>Arrêter</button>
                 </div>
             }
-            
-
+            {running && pause &&
+                <div>
+                    <button className="btn btn-outline-danger active m-1" onClick={() => { setPause(!pause) }}>Reprendre la course</button>
+                    <button className="btn btn-outline-danger m-1" onClick={() => { setRunning(!running) }}>Arrêter</button>
+                </div>
+            }
+            <div class="card">
+                <div class="card-body p-3">
+                    <ul class="fa-ul">
+                        <li><span class="fa-li"><i class="fas fa-map-marker-alt"></i></span><p>Distance : {displayDistance} km</p></li>
+                        <li><span class="fa-li"><i class="far fa-hourglass"></i></span><p>Durée : {displayTime}</p></li>
+                    </ul>
+                </div>
+            </div>
         </div>
     )
-    
+
 }

@@ -1,14 +1,7 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { Redirect } from 'react-router-dom'
-import source from '../json/source.json';
-import "./Holder.css";
+import React, { useState } from 'react';
+import "./Upload.css";
 
-const Holder = (props) => {
-     //stuffs
-
-     const [redirect, setRedirect] = useState(false);
-     const [data, setData] = useState();
-     const [keyword, setKeyword] = useState();
+const Upload = (props) => {
  
      const handleSubmit = e => {
          e.preventDefault();
@@ -16,17 +9,17 @@ const Holder = (props) => {
              pathname: '/graph',
              state:
              {
-                 test:fileData
+                 data:fileData
              }
          })
      }
 
-      /**
+  /**
    * UPLOAD PART
    * 
    */
+
   var cat = '';
-  const [call, setCall] = useState(false);
   const [fileData, setfileData] = useState(1);
   const showFile = () => {
     if (window.File && window.FileReader && window.FileList && window.Blob) {
@@ -36,9 +29,7 @@ const Holder = (props) => {
 
       reader.onload = function (fileLoadedEvent) {
         textFromFileLoaded = fileLoadedEvent.target.result;
-        console.log("1:", textFromFileLoaded)
         storeResults(textFromFileLoaded);
-
       };
 
       reader.readAsText(file, "UTF-8");
@@ -74,4 +65,4 @@ const Holder = (props) => {
      )
  }
 
-export default Holder;
+export default Upload;
