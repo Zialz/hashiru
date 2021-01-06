@@ -6,7 +6,7 @@ const Upload = (props) => {
      const handleSubmit = e => {
          e.preventDefault();
          props.history.push({
-             pathname: '/graph',
+             pathname: '/analysis',
              state:
              {
                  data:fileData

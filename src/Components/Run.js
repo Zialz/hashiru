@@ -104,7 +104,7 @@ export function Map() {
                 var geojsonLength = geojson.features[0].geometry.coordinates.length;
 
                 // Actualisation de la distance et des coordonnées
-                if (coorddisplayTime.length !== 0 && coorddisplayTime != geojson.features[0].geometry.coordinates[geojsonLength - 1]) {
+                if (coorddisplayTime.length !== 0 && coorddisplayTime !== geojson.features[0].geometry.coordinates[geojsonLength - 1]) {
                     geojson.features[0].geometry.coordinates.push(coorddisplayTime);
 
                     if (geojsonLength >= 1) {
