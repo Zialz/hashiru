@@ -4,6 +4,7 @@ import mapboxgl from 'mapbox-gl';
 import Slider from '@material-ui/core/Slider';
 import "chartjs-plugin-annotation";
 import "./Analysis.css";
+import baseSource from "../json/source.json"
 
 
 
@@ -16,10 +17,17 @@ export default function Analysis(props) {
   // Source provenant du composant Upload
   const [source, setSource] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isTest,setIsTest] = useState(false);
 
   useEffect(() => {
     var comeSource = JSON.parse(props.history.location.state.data);
-    setSource(comeSource);
+    if(comeSource.TrainingCenterDatabase !== undefined) {
+      setSource(comeSource);
+    }
+    else {
+      setIsTest(true);
+      setSource(baseSource);
+    }
     setIsLoaded(true);
   }, [props.history.location.state.data]);
 
@@ -427,6 +435,9 @@ export default function Analysis(props) {
 
   return (
     <div className="px-5 pb-2">
+      {isTest &&
+      <h1>Parcours de démonstration</h1>
+      }
       <div ref={el => mapContainer.current = el} className="mapContainer border border-danger  my-2" />
       <div class="row">
         <div class="col-md-4">

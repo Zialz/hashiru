@@ -2,17 +2,17 @@ import React, { useState } from 'react';
 import "./Upload.css";
 
 const Upload = (props) => {
- 
-     const handleSubmit = e => {
-         e.preventDefault();
-         props.history.push({
-             pathname: '/analysis',
-             state:
-             {
-                 data:fileData
-             }
-         })
-     }
+
+  const handleSubmit = e => {
+    e.preventDefault();
+    props.history.push({
+      pathname: '/analysis',
+      state:
+      {
+        data: fileData
+      }
+    })
+  }
 
   /**
    * UPLOAD PART
@@ -39,7 +39,6 @@ const Upload = (props) => {
     }
   }
 
-
   function storeResults(result) {
     cat = result;
     var convert = require('xml-js');
@@ -48,21 +47,21 @@ const Upload = (props) => {
     setfileData(result1);
   }
 
- 
-     return (
-         <div className="container py-5">
-             <div class="card bg-white">
-            <h5 className="card-header">Importer votre propre parcours</h5>
-            <div class="card-body p-3">
-            <input type="file" onChange={showFile} className="form-control-file m-1"/>
-            <form onSubmit={handleSubmit}>
-             <input type="submit" value="Envoyer" className="btn btn-outline-danger m-1" />
-             </form>
-            </div>
+  return (
+    <div className="container py-5">
+      <div class="card bg-white">
+        <h5 className="card-header">Importer votre propre parcours</h5>
+        <p className="text-danger p-1">Si vous voulez seulement tester le site, cliquez directement sur Envoyer sans importer de parcours</p>
+        <div class="card-body p-3">
+          <input type="file" onChange={showFile} className="form-control-file m-1" />
+          <form onSubmit={handleSubmit}>
+            <input type="submit" value="Envoyer" className="btn btn-outline-danger m-1" />
+          </form>
+        </div>
 
-          </div>
-         </div>
-     )
- }
+      </div>
+    </div>
+  )
+}
 
 export default Upload;
