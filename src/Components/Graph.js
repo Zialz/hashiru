@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Line } from 'react-chartjs-2';
-import source from '../json/source.json';
 import mapboxgl from 'mapbox-gl';
 import Slider from '@material-ui/core/Slider';
 import "chartjs-plugin-annotation";
@@ -15,9 +14,14 @@ mapboxgl.accessToken = 'pk.eyJ1Ijoicm90b3RvZ3JpbCIsImEiOiJja2Y1anFlYTAwbmxrMnlwO
 export default function Graph(props) {
 
   // Global Variables
+  const [source,setSource] = useState(null);
+  const [isLoaded,setIsLoaded] = useState(false);
 
-  const name = source.TrainingCenterDatabase.Activities.Activity.Sport;
-  const tracks = source.TrainingCenterDatabase.Activities.Activity.Lap.Track[0].Trackpoint;
+  useEffect(() => {
+    var comeSource = JSON.parse(props.history.location.state.test);
+    setSource(comeSource);
+    setIsLoaded(true);
+  },[])
 
   /*
    *
@@ -73,96 +77,111 @@ export default function Graph(props) {
   const mapContainer = useRef(null);
   const [geojson, setGeojson] = useState(geojsondata);
 
+  useEffect(() => {
+    if(isLoaded) {
+      const initializeMap = ({ setMap, mapContainer }) => {
+        const map = new mapboxgl.Map({
+          container: mapContainer.current,
+          style: "mapbox://styles/mapbox/streets-v11", // stylesheet location
+          center: [1, 46],
+          zoom: 5
+        })
+  
+        map.on('load', function () {
+          setMap(map);
+          map.resize();
+          map.addSource('route', {
+            'type': 'geojson',
+            'data': geojson
+          });
+  
+          map.addLayer({
+            'id': 'route',
+            'type': 'line',
+            'source': 'route',
+            'layout': {
+              'line-join': 'round',
+              'line-cap': 'round',
+            },
+            'paint': {
+              'line-color': ' #dc3545 ',
+              'line-width': 4
+            }
+          });
+  
+          map.addSource('parcours-points', {
+            'type': 'geojson',
+            'data': {
+              'type': 'FeatureCollection',
+              'features': [
+                {
+                  'type': 'Feature',
+                  'geometry': {
+                    'type': 'Point',
+                    'coordinates': [-121.415061, 40.506229]
+                  }
+                },
+                {
+                  'type': 'Feature',
+                  'geometry': {
+                    'type': 'Point',
+                    'coordinates': [-121.505184, 40.488084]
+                  }
+                },
+                {
+                  'type': 'Feature',
+                  'geometry': {
+                    'type': 'Point',
+                    'coordinates': [-121.354465, 40.488737]
+                  }
+                }
+              ]
+            }
+          });
+  
+  
+  
+          map.addLayer({
+            'id': 'points',
+            'type': 'circle',
+            'source': 'parcours-points',
+            'paint': {
+              'circle-radius': 6,
+              'circle-color': '#18182F'
+            }
+          });
+  
+  
+        });
+      }
+  
+      if (!map) initializeMap({ setMap, mapContainer });
+      if (map) fitBounds();  
+      
+    }
+    
 
+  });
 
   // Track initialization
-
-  const setCoords = tracks.map(s => {
-    var cc = [s.Position.LongitudeDegrees, s.Position.LatitudeDegrees];
-    geojsondata.features[0].geometry.coordinates.push(cc)
-  });
-
-  useEffect(() => {
-    const initializeMap = ({ setMap, mapContainer }) => {
-      const map = new mapboxgl.Map({
-        container: mapContainer.current,
-        style: "mapbox://styles/mapbox/streets-v11", // stylesheet location
-        center: [0, 0],
-        zoom: 5
-      })
-
-      map.on('load', function () {
-        setMap(map);
-        map.resize();
-        map.addSource('route', {
-          'type': 'geojson',
-          'data': geojson
-        });
-
-        map.addLayer({
-          'id': 'route',
-          'type': 'line',
-          'source': 'route',
-          'layout': {
-            'line-join': 'round',
-            'line-cap': 'round',
-          },
-          'paint': {
-            'line-color': ' #dc3545 ',
-            'line-width': 4
-          }
-        });
-
-        map.addSource('parcours-points', {
-          'type': 'geojson',
-          'data': {
-            'type': 'FeatureCollection',
-            'features': [
-              {
-                'type': 'Feature',
-                'geometry': {
-                  'type': 'Point',
-                  'coordinates': [-121.415061, 40.506229]
-                }
-              },
-              {
-                'type': 'Feature',
-                'geometry': {
-                  'type': 'Point',
-                  'coordinates': [-121.505184, 40.488084]
-                }
-              },
-              {
-                'type': 'Feature',
-                'geometry': {
-                  'type': 'Point',
-                  'coordinates': [-121.354465, 40.488737]
-                }
-              }
-            ]
-          }
-        });
+  var tracks;
+  if(isLoaded) {
+    var tracks = source.TrainingCenterDatabase.Activities.Activity.Lap[0].Track[0].Trackpoint;
 
 
 
-        map.addLayer({
-          'id': 'points',
-          'type': 'circle',
-          'source': 'parcours-points',
-          'paint': {
-            'circle-radius': 6,
-            'circle-color': '#18182F'
-          }
-        });
+  }
+
+  if(isLoaded) {
+    const setCoords = tracks.map(s => {
+      var cc = [parseFloat(s.Position.LongitudeDegrees._text), parseFloat(s.Position.LatitudeDegrees._text)];
+      geojsondata.features[0].geometry.coordinates.push(cc);
+    });
+
+  }
 
 
-      });
-    }
 
-    if (!map) initializeMap({ setMap, mapContainer });
-    if (map) fitBounds();
-
-  });
 
   /*
    *
@@ -183,10 +202,6 @@ export default function Graph(props) {
   const [totalTime, setTotalTime] = useState();
   const [runStart, setRunStart] = useState();
   const [runEnd, setRunEnd] = useState();
-
-
-
-
   const chartContainer = useRef(null);
 
   const handleChange = (event, newValue) => {
@@ -194,64 +209,73 @@ export default function Graph(props) {
   };
 
 
-  // Distance
-  let i = 20;
-  const setDistance = tracks.map(s => {
-    distance.push(Math.round(s.DistanceMeters))
-  });
-
-  // Time
-  const setTime = tracks.map(s => {
-
-    time.push(new Date(s.Time).toTimeString().split(' ')[0])
-
-
-  });
-
-  // Fq
-  i = 20;
-  const setFq = tracks.map(s => {
-    fq.push(s.HeartRateBpm.Value)
-  });
-
+  if(isLoaded) {
+      // Distance
+    const setDistance = tracks.map(s => {
+      distance.push(Math.round(s.DistanceMeters._text))
+    });
+  
+    // Time
+    const setTime = tracks.map(s => {
+  
+      time.push(new Date(s.Time._text).toTimeString().split(' ')[0])
+  
+  
+    });
+  
+    // Fq
+    const setFq = tracks.map(s => {
+      fq.push(s.HeartRateBpm.Value._text)
+    });
+  
+  }
+ 
   // FULL GRAPH
   const fullDistance = [];
   const fullFq = [];
+  if(isLoaded) {
+    const setFullFq = fq.map(f => {
+      fullFq.push(f)
+    });
+  
+    const setFullDistance = distance.map(d => {
+      fullDistance.push(d)
+    });
+  }
 
-  const setFullFq = fq.map(f => {
-    fullFq.push(f)
-  });
-
-  const setFullDistance = distance.map(d => {
-    fullDistance.push(d)
-  });
-  console.log(fullDistance[fullDistance.length - 1]);
 
   useEffect(() => {
-    setTotalDist(fullDistance[fullDistance.length - 1]);
-    setRunStart(time[0]);
-    setRunEnd(time[time.length - 1]);
-    setTotalTime(time_diff(time[time.length - 1],time[0]));
+    if(isLoaded) {
+      setTotalDist(fullDistance[fullDistance.length - 1]);
+      setRunStart(time[0]);
+      setRunEnd(time[time.length - 1]);
+      setTotalTime(time_diff(time[time.length - 1], time[0]));
+  
+    }
 
-  });
+  },);
 
 
   const moments = [];
-
-  for (let j = 0; j < 3; j++) {
-    let min = 1 + (fq.length / 3) * j;
-    let max = (fq.length / 3) + ((fq.length / 3) * j);
-
-    let actmin = 99999;
-    let pos = "";
-    for (let k = min; k < max; k++) {
-      if (fq[k] < actmin) {
-        actmin = fq[k];
-        pos = k;
+  if(isLoaded) {
+    for (let j = 0; j < 3; j++) {
+      let min = 1 + (fq.length / 3) * j;
+      let max = (fq.length / 3) + ((fq.length / 3) * j);
+  
+      let actmin = 99999;
+      let pos = "";
+      for (let k = min; k < max; k++) {
+        if (fq[k] < actmin) {
+          actmin = fq[k];
+          pos = k;
+        }
       }
+      moments.push(pos);
     }
-    moments.push(pos);
   }
+
+  
+  
 
   var fullData = {
     labels: fullDistance,
@@ -335,48 +359,61 @@ export default function Graph(props) {
   };
 
   useEffect(() => {
-
-
-    fq = []
-    var updateFq = tracks.map(s => {
-      if (s.DistanceMeters < value[1] && s.DistanceMeters > value[0]) {
-        fq.push(s.HeartRateBpm.Value)
+    
+    // Adapative graph
+    if(isLoaded) {
+      fq = []
+      var updateFq = tracks.map(s => {
+        if (s.DistanceMeters._text < value[1] && s.DistanceMeters._text > value[0]) {
+          fq.push(s.HeartRateBpm.Value._text)
+        }
+  
+  
+      });
+  
+      distance = []
+      var updateDist = tracks.map(s => {
+  
+        if (s.DistanceMeters._text < value[1] && s.DistanceMeters._text > value[0]) {
+          distance.push(Math.round(s.DistanceMeters._text))
+        }
+  
+  
+  
+      });
+  
+      coords = []
+      var updateCoords = tracks.map(s => {
+        var cc = [s.Position.LongitudeDegrees._text, s.Position.LatitudeDegrees._text];
+        if (s.DistanceMeters._text < value[1] && s.DistanceMeters._text > value[0]) {
+          coords.push(cc)
+        }
+      });
+  
+      data.labels = distance;
+      data.datasets[0].data = fq;
+      markers.features[0].geometry.coordinates = coords[0];
+      markers.features[1].geometry.coordinates = coords[coords.length - 1];
+  
+      if (map) {
+        map.getSource('parcours-points').setData(markers);
+  
       }
-
-
-    });
-
-    distance = []
-    var updateDist = tracks.map(s => {
-
-      if (s.DistanceMeters < value[1] && s.DistanceMeters > value[0]) {
-        distance.push(Math.round(s.DistanceMeters))
-      }
-
-
-
-    });
-
-    coords = []
-    var updateCoords = tracks.map(s => {
-      var cc = [s.Position.LongitudeDegrees, s.Position.LatitudeDegrees];
-      if (s.DistanceMeters < value[1] && s.DistanceMeters > value[0]) {
-        coords.push(cc)
-      }
-    });
-
-    data.labels = distance;
-    data.datasets[0].data = fq;
-    markers.features[0].geometry.coordinates = coords[0];
-    markers.features[1].geometry.coordinates = coords[coords.length - 1];
-
-    if (map) {
-      map.getSource('parcours-points').setData(markers);
-
     }
+    
 
 
   })
+  
+  useEffect(() => {
+    if(map) setMapData();
+  },[map])
+  
+
+
+
+
+  // FUNCTIONS
 
   function fitBounds() {
     var coordinates = geojsondata.features[0].geometry.coordinates;
@@ -389,16 +426,28 @@ export default function Graph(props) {
     });
   };
 
+  function setMapData() {
+    setGeojson(geojsondata);
+    map.getSource('route').setData(geojson);
+  }
+
   function time_diff(t1, t2) {
     var parts = t1.split(':');
     var d1 = new Date(0, 0, 0, parts[0], parts[1], parts[2]);
     parts = t2.split(':');
     var d2 = new Date(new Date(0, 0, 0, parts[0], parts[1], parts[2]) - d1);
-    if(d2.getHours() !== 0) return (d2.getHours() + ':' + d2.getMinutes() + ':' + d2.getSeconds());
-    return ( d2.getMinutes() + ':' + d2.getSeconds());
- };
+    if (d2.getHours() !== 0) return (d2.getHours() + ':' + d2.getMinutes() + ':' + d2.getSeconds());
+    return (d2.getMinutes() + ':' + d2.getSeconds());
+  };
+
+
+
+  if(!isLoaded) {
+    return(<div><p>Loading...</p></div>)
+  }
 
   return (
+
     <div className="px-5 pb-2">
       <div ref={el => mapContainer.current = el} className="mapContainer border border-danger  my-2" />
       <div class="row">
@@ -414,12 +463,10 @@ export default function Graph(props) {
 
               </ul>
               <button onClick={() => fitBounds()} className="btn btn-outline-danger m-1">Recentrer</button>
-
             </div>
-
           </div>
-
         </div>
+
         <div class="col-md-8 ">
           {graph &&
             <div class="card">
@@ -454,5 +501,8 @@ export default function Graph(props) {
       </div>
     </div>
 
+
   )
 }
+
+//              <button onClick={() => setMapData()} className="btn btn-outline-danger m-1">Actualiser le parcours</button>
