@@ -204,16 +204,10 @@ export default function Analysis(props) {
 
   if (isLoaded) {
     tracks.forEach(s => {
-      distance.push(Math.round(s.DistanceMeters._text))
-    });  // Initialisation du tableau de la distance
-
-    tracks.forEach(s => {
-      time.push(new Date(s.Time._text).toTimeString().split(' ')[0])
-    });  // Initialisation du tableau du temps
-
-    tracks.forEach(s => {
-      fq.push(s.HeartRateBpm.Value._text)
-    }); // Initialisation du tableau de la fréquence cardiaque
+      distance.push(Math.round(s.DistanceMeters._text)); // Initialisation du tableau de la distance
+      time.push(new Date(s.Time._text).toTimeString().split(' ')[0]); // Initialisation du tableau du temps
+      fq.push(s.HeartRateBpm.Value._text); // Initialisation du tableau de la fréquence cardiaque
+    });  
   }
 
   // Graphique complet --------------------------
@@ -345,26 +339,19 @@ export default function Analysis(props) {
   useEffect(() => {
     if (isLoaded) {
       fq = []
-      tracks.forEach(s => {
-        if (s.DistanceMeters._text < value[1] && s.DistanceMeters._text > value[0]) {
-          fq.push(s.HeartRateBpm.Value._text)
-        } // Mise à jour de la fréquence cardiaque
-      });
-
       distance = []
-      tracks.forEach(s => {
-        if (s.DistanceMeters._text < value[1] && s.DistanceMeters._text > value[0]) {
-          distance.push(Math.round(s.DistanceMeters._text))
-        }
-      }); // Mise à jour de la distance
-
       coords = []
+
       tracks.forEach(s => {
         var cc = [s.Position.LongitudeDegrees._text, s.Position.LatitudeDegrees._text];
         if (s.DistanceMeters._text < value[1] && s.DistanceMeters._text > value[0]) {
-          coords.push(cc)
-        }
-      }); // Mise à jour de la position
+          fq.push(s.HeartRateBpm.Value._text); // Mise à jour de la fréquence cardiaque
+          distance.push(Math.round(s.DistanceMeters._text)); // Mise à jour de la distance
+          coords.push(cc); // Mise à jour de la position
+
+
+        } 
+      });
 
       // Mise à jour des labels du graphique
       data.labels = distance;
