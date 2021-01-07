@@ -348,8 +348,6 @@ export default function Analysis(props) {
           fq.push(s.HeartRateBpm.Value._text); // Mise à jour de la fréquence cardiaque
           distance.push(Math.round(s.DistanceMeters._text)); // Mise à jour de la distance
           coords.push(cc); // Mise à jour de la position
-
-
         } 
       });
 
